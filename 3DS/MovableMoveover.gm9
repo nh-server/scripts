@@ -1,0 +1,176 @@
+# Movable Moveover script, now with less manual
+# Powered by FixupMovable TM technology https://github.com/fox8091/FixupMovable
+# For use in https://wiki.hacks.guide/wiki/3DS:Movable_Moveover
+# Last edited: 2024-9-24
+# Version: 1.3
+# Script by: ItsCrocoSwine
+if keychk SELECT #Hold Select to keep preview mode on, with fun colors!
+	set PREVIEW_COLOR_COMMENT 32CD32 #Lime green
+	set PREVIEW_COLOR_ACTIVE 5D3FD3 #Iris
+	set PREVIEW_COLOR_CODE E37383 #Watermelon pink
+else
+	set PREVIEW_MODE "Movable Moveover\nVersion: 1.3"
+end
+
+ask "This script will do the following:\n- Create an essential files backup\n- Fixup a provided movable.sed\n- Copy fixed movable to CTRNAND\n \nIf you are ok with this\npress (A) to continue."
+
+set MMMPATH 0:/gm9/out/MMM #Working path
+set OUTPATH 0:/gm9/out/MMM_Backup #Path for backuping up files
+rm -o -s $[MMMPATH]
+mkdir -o -s $[MMMPATH]
+mkdir -o -s $[OUTPATH]
+
+#Find source movable
+#Select a file
+@FILE_SELECT
+filesel -x "Select your movable.sed or essential.exefs:" 0:/* SOURCE_FILE
+strsplit SOURCE_FILENAME $[SOURCE_FILE] /
+
+#Check if its at least a .sed .exefs or .bin
+if not strsplit SOURCE_FILE_EXT $[SOURCE_FILE] .
+	if chk $[SOURCE_FILENAME] movable #reject no file extension, unless its exactly "movable"
+		cp -w $[SOURCE_FILE] $[MMMPATH]/sourcemovable.sed
+	else
+		ask "Error: '$[SOURCE_FILENAME]' is\nnot a valid input file.\n \nPlease select a movable.sed, essential.exefs,\nor sysnand.bin from the source console."
+		goto FILE_SELECT
+	end
+elif chk $[SOURCE_FILE_EXT] sed
+	cp -w $[SOURCE_FILE] $[MMMPATH]/sourcemovable.sed
+elif chk $[SOURCE_FILE_EXT] exefs
+	fdummy -o -s $[MMMPATH]/sourcemovable.sed 140
+	inject $[SOURCE_FILE]@600:140 $[MMMPATH]/sourcemovable.sed
+elif chk $[SOURCE_FILE_EXT] bin
+	fdummy -o -s $[MMMPATH]/sourcemovable.sed 140
+	inject $[SOURCE_FILE]@800:140 $[MMMPATH]/sourcemovable.sed
+else
+	ask "Error: '$[SOURCE_FILENAME]' is\nnot a valid input file.\n \nPlease select a movable.sed, essential.exefs,\nor sysnand.bin from the source console."
+	goto FILE_SELECT
+end
+
+#verify file integrity
+fget $[MMMPATH]/sourcemovable.sed@0:4 SM_SEED
+fget $[MMMPATH]/sourcemovable.sed@8:10 SM_BFMCHECK
+if not shaget $[MMMPATH]/sourcemovable.sed@8:118 SM_SHA
+	echo "Source movable.sed is invalid:\nmovable is unreadable"
+	poweroff
+elif chk -u $[SM_SEED] "53454544"
+	echo "Source movable.sed is invalid:\nSEED is missing or corrupt\n \n(Is this even a movable?)"
+	poweroff
+elif chk $[SM_BFMCHECK] "00000000000000000000000000000000"
+	echo "Source movable.sed is invalid:\nmovable is from seedminer"
+	poweroff
+end
+
+if find 1:/private/movable.sed NULL
+	fget 1:/private/movable.sed@0:4 PM_SEED
+	fget 1:/private/movable.sed@5:1 PM_CMAC
+	fget 1:/private/movable.sed@8:10 PM_BFMCHECK
+	if not shaget 1:/private/movable.sed@8:118 PM_SHA
+		echo "1:/private/movable.sed is unreadable\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+		poweroff
+	elif chk -u $[PM_SEED] "53454544"
+		echo "1:/private/movable.sed is invalid:\nSEED is missing or corrupt\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+		poweroff
+	elif chk $[PM_BFMCHECK] "00000000000000000000000000000000"
+		echo "1:/private/movable.sed is invalid:\nmovable is from seedminer\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+		poweroff
+	end
+else
+	echo "1:/private/movable.sed is missing\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"	
+	poweroff
+end
+
+if find S:/essential.exefs NULL
+	if not shaget S:/essential.exefs@0:100 NULL
+		echo "S:/essential.exefs is unreadable\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+		poweroff
+	end
+else
+	echo "S:/essential.exefs is missing\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"	
+	poweroff
+end
+
+#Compare source and private movable. If both are the same determine if FixupMovable is required.
+if chk $[SM_SHA] $[PM_SHA]
+	if chk $[PM_CMAC] 00
+		echo "Error: Source movable is the same as in NAND\nFixupMovable is not required.\n \nIf you are trying to do a\nMovable Moveover then you chose\nthe wrong essential.exefs or movable.sed"
+		poweroff
+	else
+		if not ask "Information: Source movable is the same as in NAND\nWould you like to run FixupMovable?\n \nNote: This is NOT a normal Movable Moveover\nand will NOT change your encryption key.\nIf you are not trying to fixup\na previous moveover, press (B) to cancel.\n \n Otherwise press (A) to continue."	
+			echo "Script canceled\n \nPress (A) to power off."
+			rm -o -s $[MMMPATH]
+			poweroff
+		end
+	end
+end
+
+#Calculate and check for existence of ID0 for source movable
+#Write sha file for KeyY
+shaget $[MMMPATH]/sourcemovable.sed@110:10 $[MMMPATH]/KeyY.sha
+
+#Get ID0 parts, reorder bytes, and combine
+fget -e $[MMMPATH]/KeyY.sha@0:4 ID0part1
+fget -e $[MMMPATH]/KeyY.sha@4:4 ID0part2 
+fget -e $[MMMPATH]/KeyY.sha@8:4 ID0part3 
+fget -e $[MMMPATH]/KeyY.sha@C:4 ID0part4 
+set SM_ID0 $[ID0part1]$[ID0part2]$[ID0part3]$[ID0part4]
+
+#Check for ID0 directory
+if not isdir "0:/Nintendo 3DS/$[SM_ID0]"
+	echo "Error: ID0 of source movable.sed does not\nmatch any ID0 on the SD card.\n \nSource file: $[SOURCE_FILENAME]\nDetected ID0: $[SM_ID0]\n \nPlease make sure the Nintendo 3DS folder you\nare trying to transfer is on the SD card\nand you are choosing the correct movable."
+	rm -o -s $[MMMPATH]
+	poweroff
+end
+
+#Backup movable/essential files
+findnot $[OUTPATH]/$[DATESTAMP]_$[SERIAL]_movable_??.sed MOVABLEOUT
+if not cp 1:/private/movable.sed $[MOVABLEOUT]
+	echo "Failed backing up movable.sed\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+	poweroff
+end
+
+findnot $[OUTPATH]/$[DATESTAMP]_$[SERIAL]_essential_??.exefs ESSENTIALOUT
+if not cp S:/essential.exefs $[ESSENTIALOUT]
+	echo "Failed backing up essential.exefs\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+	poweroff
+end
+
+#FixupMovable
+fdummy -o -s $[MMMPATH]/fixupmovable.sed 120
+inject $[MMMPATH]/sourcemovable.sed@0:120 $[MMMPATH]/fixupmovable.sed@0
+fill $[MMMPATH]/fixupmovable.sed@4:4 00
+
+#Verify fixed up movable
+#The FixupMovable section would have had to fail without throwing an exception for anything here to actually fail, but might as well be sure.
+fget $[MMMPATH]/fixupmovable.sed@0:4 FM_SEED
+fget $[MMMPATH]/fixupmovable.sed@4:4 FM_CMAC
+if not shaget $[MMMPATH]/fixupmovable.sed@8:118 FM_SHA
+	echo "FixupMovable error:\nmovable is unreadable\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+	poweroff
+elif chk -u $[SM_SEED] "53454544"
+	echo "FixupMovable error:\nSEED is missing or corrupt\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+	poweroff
+elif chk -u $[FM_CMAC] "00000000"
+	echo "FixupMovable error:\nCMAC flag has not been set properly\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+	poweroff
+elif chk -u $[SM_SHA] $[FM_SHA]
+	echo "FixupMovable error:\nLFCS or KeyY has been changed\n(How did this happen?)\n \nAsk for help on Discord:\nhttps://discord.gg/MWxPgEp"
+end
+
+#Copy movable
+if ask "Ready to perform the Moveover.\nSource file: $[SOURCE_FILENAME]\nDetected ID0: $[SM_ID0]\n \nUnlock permissions to continue."
+	allow 1:/private/movable.sed
+	cp -w $[MMMPATH]/fixupmovable.sed 1:/private/movable.sed
+	fixcmac 1:/dbs
+	fixcmac 1:/data
+else
+	echo "Script canceled\n \nPress (A) to power off."
+	rm -o -s $[MMMPATH]
+	poweroff
+end
+
+#Cleanup
+rm -o -s $[MMMPATH]
+rm -o -s $[CURRDIR]/MovableMoveover.gm9
+echo "Movable Moveover complete!\nYour new ID0 is: $[SM_ID0]\n \nYour backup essential files can be\nfound at: $[OUTPATH]\n \nPress (A) to reboot."
+reboot
