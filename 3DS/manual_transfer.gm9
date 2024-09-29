@@ -1,12 +1,12 @@
 # Manual CTRTransfer Script
 # A heavily-tweaked chimera of the original manual transfer script and the Lazarus3DS script.
 # Attempts to revive a damaged NAND with a donor CTRNAND.
-# last changed: 2024-09-08
+# last changed: 2024-09-28
 # author: AnalogMan, fox8091, StarlitSkies
 
 # Tell user what script does and ask for confirmation
 set ERRORMSG "Script aborted by user."
-ask "This script overwrites the entire CTRNAND\nwith a known working copy of that data.\nIt will try to keep all unique files intact\n but everything already missing will stay missing.\n \nOnly use this script on consoles that will not boot.\n \nContinue?"
+ask "This script overwrites the entire CTRNAND\nwith a known working copy of that data.\nIt will try to keep all unique files intact\n but everything already missing will stay missing.\n \nOnly use this script on consoles that will not boot.\n \nIf this applies to you, press (A) to continue."
 
 # Check that essentials.exefs exists as backup, mount it, and extract uniques
 # If it doesn't, check for backup essentials.exefs in 0:/gm9/out, mount it, and extract uniques
@@ -14,16 +14,16 @@ ask "This script overwrites the entire CTRNAND\nwith a known working copy of tha
 # If any console uniques are missing, immediately end script - this isn't Lazarus, nor should it be
 
 if not find S:/essential.exefs ESSENTIAL
-    echo "Note: essential.exefs not found.\nUsing backup essential.exefs in 0:/gm9/out instead.\n\nPress A to continue."
+    echo "Note: essential.exefs not found.\nUsing backup essential.exefs in 0:/gm9/out instead.\n \nPress (A) to continue."
     if not find $[GM9OUT]/essential.exefs ESSENTIAL
-		echo "Note: Backup essential.exefs not found.\nUsing extracted files from 0:/gm9/in instead.\n\nPress A to continue."
+		echo "Note: Backup essential.exefs not found.\nUsing extracted files from 0:/gm9/in instead.\n \nPress (A) to continue."
 	end
 end
 
 set ERRORMSG "Console unique(s) not found.\nThis script will not run unless all console uniques exist."
 
 if chk -u $[ESSENTIAL] ""
-	# this is if either essentials.exefs exists
+	# this is if either essential.exefs exists
     imgmount $[ESSENTIAL]
 	set BACKUP $[GM9OUT]/backup
     mkdir $[BACKUP]
@@ -40,7 +40,7 @@ if chk -u $[ESSENTIAL] ""
 	find $[BACKUP]/movable.sed MOVABLE
 	find $[BACKUP]/SecureInfo_A SECINFO
 else
-	# this is if neither essentials.exefs exists. note it is gm9/in, not gm9/out
+	# this is if neither essential.exefs exists. note it checks in gm9/in, not gm9/out
 	find 0:/gm9/in/LocalFriendCodeSeed_B SEED
 	find 0:/gm9/in/HWCAL0.dat HWCAL0
 	find 0:/gm9/in/HWCAL1.dat HWCAL1
@@ -48,35 +48,39 @@ else
 	find 0:/gm9/in/SecureInfo_A SECINFO
 end
 
-set ERRORMSG "No valid CTRNAND images found in 0:/gm9/out."
+set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/out."
 if chk $[ONTYPE] "N3DS"
 	find $[GM9OUT]/*_ctrtransfer_n3ds.bin NULL
 else
 	find $[GM9OUT]/*_ctrtransfer_o3ds.bin NULL
 end
 
-set ERRORMSG "No CTRNAND image was selected."
+set ERRORMSG "No CTRTransfer file was selected."
 if chk $[ONTYPE] "N3DS"
-    filesel "Select the CTRNAND image to use." $[GM9OUT]/*_ctrtransfer_n3ds.bin IMAGE
+    filesel "Select the CTRTransfer file to use." $[GM9OUT]/*_ctrtransfer_n3ds.bin IMAGE
 else
-    filesel "Select the CTRNAND image to use." $[GM9OUT]/*_ctrtransfer_o3ds.bin IMAGE
+    filesel "Select the CTRTransfer file to use." $[GM9OUT]/*_ctrtransfer_o3ds.bin IMAGE
+end
+
+set ERRORMSG "The selected CTRNAND image is corrupted.\n \nPower off the console and obtain\na new copy of your CTRTransfer file."
+sha $[IMAGE] $[IMAGE].sha
+imgmount $[IMAGE]
+find 7:/title/000400db/00017?02 NULL
+imgumount
+
+if ask "Also restore non-critical data?\nThis includes things like the friends list and activity log,\nwhich would normally be reset.\n \nThis is usually safe, but may carry\na risk of preserving file corruption.\n \n(If you do not restore the data,\nbackups of it will be kept in 0:/pit.)"
+	set OPTRESTORE 1
+else
+	set OPTRESTORE 0
 end
 
 # Prompt for permission
 set ERRORMSG "Script denied permissions by user."
 allow -a S:
 
-set ERRORMSG ""
-if ask "Also restore non-critical data?\nThis includes things like the friends list and activity log,\nwhich would normally be reset.\n\nThis is usually safe, but may carry\na risk of preserving file corruption."
-	set OPTRESTORE 1
-else
-	set OPTRESTORE 0
-	echo "Backups of this data will be preserved.\n\nIf you wish to restore them manually later on,\nthe files will be inside 0:/pit.\n\nPress A to continue."
-end
-
-
-# Preserve all other important console-unique data, to be restored after transfer
-# Attempt to copy sysdata files to SD for restoring later
+# Preserve all other important console-unique data, regardless of whether it's restored after transfer
+# Attempt to copy sysdata files to SD
+set ERRORMSG "Backing up data somehow failed...?"
 cp -w -o -s -n 1:/data/$[SYSID0]/sysdata/00010017/00000000 0:/pit/configsave.bin
 cp -w -o -s -n 1:/data/$[SYSID0]/sysdata/00010032/00000000 0:/pit/friendsave.bin
 cp -w -o -s -n 1:/data/$[SYSID0]/sysdata/0001000f/00000000 0:/pit/seedsave.bin
@@ -93,13 +97,13 @@ find -o -s 1:/data/$[SYSID0]/sysdata/000202?e ARGAMES
 set ARGAMES $[ARGAMES]/00000000
 cp -w -o -s -n $[ARGAMES] 0:/pit/argames.bin
 
-# Attempt to copy extdata files to SD for restoring later
+# Attempt to copy extdata files to SD
 cp -w -o -s -n 1:/data/$[SYSID0]/extdata/00048000/f0000001 0:/pit/01 # Photos
 cp -w -o -s -n 1:/data/$[SYSID0]/extdata/00048000/f0000002 0:/pit/02 # Sounds
 cp -w -o -s -n 1:/data/$[SYSID0]/extdata/00048000/f000000b 0:/pit/0b # MiiMaker, Game Coins, etc.
 
 # Overwrite CTRNAND with CTRTransfer image and then restore system uniques
-set ERRORMSG "Failed to overwrite CTRNAND with image."
+set ERRORMSG "Overwriting CTRNAND with image failed."
 cp -n -w $[IMAGE] S:/ctrnand_full.bin
 set ERRORMSG "Restoring LocalFriendCodeSeed_B failed."
 cp -n -w $[SEED] 1:/rw/sys/LocalFriendCodeSeed_B
@@ -127,7 +131,7 @@ elif find 1:/title/000400db/00017502 NULL
 elif find 1:/title/000400db/00017602 NULL
 	set CVREG 06
 else
-	echo "The CVer title does not exist.\nYour CTRTransfer image is probably corrupted.\n\nPress A to shut down, then please obtain\n a new CTRTransfer file."
+	echo "The CVer title does not exist.\nYour CTRTransfer image somehow corrupted itself after injection.\n \nPress (A) to shut down, then please ask\nfor help in the Nintendo Homebrew Discord."
 	poweroff
 end
 fget 1:/rw/sys/SecureInfo_A@100:1 SIREG
@@ -179,7 +183,11 @@ fixcmac 1:/private
 
 # Wrap up
 set ERRORMSG "Reboot canceled."
-ask "Manual CTRTransfer complete.\n \nRemove backup files and reboot now?"
+if chk $[OPTRESTORE] 1
+	ask "Manual CTRTransfer complete.\n \nPress (A) to remove backup files and reboot now."
+else
+	ask "Manual CTRTransfer complete.\n \nPress (A) to reboot now."
+end
 if chk $[OPTRESTORE] 1
 	rm -o -s 0:/pit
 end
