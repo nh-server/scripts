@@ -3,10 +3,7 @@
 # overhaul, fixes, and current maintenance by StarlitSkies
 # last modified: 2024-09-28
 # version: 3.1.1
-# if you didn't get this file from https://gist.github.com/StarlitSkies/f417c1ded9de8fceffdb532f92823377/, go there and make sure this copy wasn't tampered with
-
-# latest changelog:
-# make message for detecting too many FIRMs more accurate
+# if you didn't get this file from https://github.com/nh-server/scripts, go there and make sure this copy wasn't tampered with
 
 @cleanup
 set FULL "0"
