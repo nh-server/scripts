@@ -1,11 +1,8 @@
 # ctrtransfer script for 3ds.hacks.guide
-# script made by doge.2
-# last modified: 09/28/2024
+# script made by doge.2, with contributions from StarlitSkies
+# last modified: 2024-09-30
 # most stuff taken from manual ctrtransfer script and megascript, credits go to them :p
 set GM9IN "0:/gm9/in"
-set CTRSUM ""
-set ACTSUM "$[CTRXFR].sha"
-set CTRXFR ""
 set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/out."
 if chk $[ONTYPE] "N3DS"
 	find $[GM9IN]/*_ctrtransfer_n3ds.bin NULL
@@ -19,6 +16,8 @@ if chk $[ONTYPE] "N3DS"
 else
     filesel "Select the CTRTransfer file to use." $[GM9IN]/*_ctrtransfer_o3ds.bin CTRXFR
 end
+set ERRORMSG "There is no SHA file for the selected CTRTransfer file.\nCopy its .bin.sha to the SD card and try again."
+find $[CTRXFR].sha NULL
 set ERRORMSG "The selected CTRNAND image is corrupted.\n \nPower off the console and obtain\na new copy of your CTRTransfer file."
 sha $[CTRXFR] $[CTRXFR].sha
 imgmount $[CTRXFR]
@@ -29,10 +28,16 @@ set ERRORMSG "Script aborted by user."
 ask "All checks performed, ready to start CTRTransfer.\nContinue?"
 set ERRORMSG "Script denied permissions by user."
 allow -a 1:
-if	find 1:/rw/sys/SecureInfo_A SECNFO
+if find 1:/rw/sys/SecureInfo_A SECNFO
 elif find 1:/rw/sys/SecureInfo_B SECNFO
 else
-	cp -n 1:/rw/sys/SecureInfo_C 1:/rw/sys/SecureInfo_A
+	if find 1:/rw/sys/SecureInfo_C
+		cp -n 1:/rw/sys/SecureInfo_C 1:/rw/sys/SecureInfo_A
+	else
+		set ERRORMSG "Your console's SecureInfo is missing.\nAs this is a critical file, the script will\nnot continue without it.\n \nPlease perform data recovery before trying again."
+		# it should not be possible for the following command to succeed. if it does, something is really cursed
+		cp S:/twlmbr.bin S:/void.bin
+	end
 end
 cp -n -w -o -s $[SECNFO] 1:/rw/sys/SecureInfo_C
 
