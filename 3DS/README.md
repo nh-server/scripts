@@ -27,3 +27,4 @@ For instructions on how to use these scripts, open the links to their info pages
 * [fox8091](https://github.com/fox8091) and AnalogMan: Original creators of manual_transfer.
 * [ItsCrocoSwine](https://github.com/ItsCrocoSwine): Creator of MovableMoveover.
 * [StarlitSkies](https://github.com/StarlitSkies): Current maintainer of ctrcheck and manual_transfer.
+* [fyredragon69](github.com/fyredragon69): Current maintainer of ctrtransfer.
