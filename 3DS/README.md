@@ -18,6 +18,9 @@ For instructions on how to use these scripts, open the links to their info pages
 
 [MovableMoveover.gm9](https://wiki.hacks.guide/wiki/3DS:Movable_Moveover) is the script used as part of a Movable Moveover, which is effectively a manual System Transfer.
 
+## CTRTransfer
+[ctrtransfer.gm9](https://3ds.hacks.guide/ctrtransfer.html) is the script used as part of a CTRTransfer. It verifies all hashes and makes sure the correct image for your console is applied.
+
 # Credits
 
 * [FrozenChen](https://github.com/FrozenChen): Original creator of ctrcheck.
