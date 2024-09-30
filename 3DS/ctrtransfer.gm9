@@ -1,0 +1,67 @@
+# ctrtransfer script for 3ds.hacks.guide
+# script made by doge.2
+# last modified: 09/28/2024
+# most stuff taken from manual ctrtransfer script and megascript, credits go to them :p
+set GM9IN "0:/gm9/in"
+set CTRSUM ""
+set ACTSUM "$[CTRXFR].sha"
+set CTRXFR ""
+set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/out."
+if chk $[ONTYPE] "N3DS"
+	find $[GM9IN]/*_ctrtransfer_n3ds.bin NULL
+else
+	find $[GM9IN]/*_ctrtransfer_o3ds.bin NULL
+end
+
+set ERRORMSG "No CTRTransfer file was selected."
+if chk $[ONTYPE] "N3DS"
+    filesel "Select the CTRTransfer file to use." $[GM9IN]/*_ctrtransfer_n3ds.bin CTRXFR
+else
+    filesel "Select the CTRTransfer file to use." $[GM9IN]/*_ctrtransfer_o3ds.bin CTRXFR
+end
+set ERRORMSG "The selected CTRNAND image is corrupted.\n \nPower off the console and obtain\na new copy of your CTRTransfer file."
+sha $[CTRXFR] $[CTRXFR].sha
+imgmount $[CTRXFR]
+find 7:/title/000400db/00017?02 NULL
+imgumount
+
+set ERRORMSG "Script aborted by user."
+ask "All checks performed, ready to start CTRTransfer.\nContinue?"
+set ERRORMSG "Script denied permissions by user."
+allow -a 1:
+if	find 1:/rw/sys/SecureInfo_A SECNFO
+elif find 1:/rw/sys/SecureInfo_B SECNFO
+else
+	cp -n 1:/rw/sys/SecureInfo_C 1:/rw/sys/SecureInfo_A
+end
+cp -n -w -o -s $[SECNFO] 1:/rw/sys/SecureInfo_C
+
+imgmount $[CTRXFR]
+
+inject 7:/rw/sys/SecureInfo_A@100:1 1:/rw/sys/SecureInfo_C@100
+
+rm -o -s 1:/dbs/ticket.bak
+mv 1:/dbs/ticket.db 1:/ticket.bak
+rm 1:/dbs
+rm 1:/title
+mkdir 1:/dbs
+mkdir 1:/title
+cp -n -w 7:/dbs 1:/dbs
+cp -n -w 7:/title 1:/title
+
+fixcmac 1:/dbs
+fixcmac 1:/title
+
+mv -n -w 1:/ticket.bak 1:/dbs/ticket.bak
+imgumount
+rm -o -s 1:/data/$[SYSID0]/sysdata/00010011/00000000
+imgmount 1:/dbs/ticket.bak
+if	not find T:/*o* NULL
+	echo "No user tickets found.\nSkip the 'Reinstalling Tickets' section."
+else
+rm -o -s $[GM9OUT]/ctrtransfer_tickets
+mkdir $[GM9OUT]/ctrtransfer_tickets
+cp -o -s T:/eshop $[GM9OUT]/ctrtransfer_tickets/eshop
+cp -o -s T:/unknown $[GM9OUT]/ctrtransfer_tickets/unknown
+end
+echo "CTRNAND transfer successful."
