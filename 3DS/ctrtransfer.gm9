@@ -34,9 +34,8 @@ else
 	if find 1:/rw/sys/SecureInfo_C
 		cp -n 1:/rw/sys/SecureInfo_C 1:/rw/sys/SecureInfo_A
 	else
-		set ERRORMSG "Your console's SecureInfo is missing.\nAs this is a critical file, the script will\nnot continue without it.\n \nPlease perform data recovery before trying again."
-		# it should not be possible for the following command to succeed. if it does, something is really cursed
-		cp S:/twlmbr.bin S:/void.bin
+		echo "Your console's SecureInfo is missing.\nAs this is a critical file, the script will\nnot continue without it.\n \nPlease perform data recovery before trying again."
+		goto exit
 	end
 end
 cp -n -w -o -s $[SECNFO] 1:/rw/sys/SecureInfo_C
@@ -70,3 +69,5 @@ cp -o -s T:/eshop $[GM9OUT]/ctrtransfer_tickets/eshop
 cp -o -s T:/unknown $[GM9OUT]/ctrtransfer_tickets/unknown
 end
 echo "CTRNAND transfer successful."
+
+@exit
