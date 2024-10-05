@@ -5,8 +5,9 @@
 # author: AnalogMan, fox8091, StarlitSkies
 
 # Tell user what script does and ask for confirmation
+set GM9IN "0:/gm9/in"
 set ERRORMSG "Script aborted by user."
-ask "This script overwrites the entire CTRNAND\nwith a known working copy of that data.\nIt will try to keep all unique files intact\n but everything already missing will stay missing.\n \nOnly use this script on consoles that will not boot.\n \nIf this applies to you, press (A) to continue."
+ask "This script overwrites the entire CTRNAND\nwith a known working copy of that data.\nIt will keep all existing unique files intact\n but everything already missing will stay missing.\n \nOnly use this script on consoles that will not boot.\n \nIf this applies to you, press (A) to continue."
 
 # Check that essentials.exefs exists as backup, mount it, and extract uniques
 # If it doesn't, check for backup essentials.exefs in 0:/gm9/out, mount it, and extract uniques
@@ -15,7 +16,7 @@ ask "This script overwrites the entire CTRNAND\nwith a known working copy of tha
 
 if not find S:/essential.exefs ESSENTIAL
     echo "Note: essential.exefs not found.\nUsing backup essential.exefs in 0:/gm9/out instead.\n \nPress (A) to continue."
-    if not find $[GM9OUT]/essential.exefs ESSENTIAL
+    if not find $[GM9IN]/essential.exefs ESSENTIAL
 		echo "Note: Backup essential.exefs not found.\nUsing extracted files from 0:/gm9/in instead.\n \nPress (A) to continue."
 	end
 end
@@ -27,11 +28,11 @@ if chk -u $[ESSENTIAL] ""
     imgmount $[ESSENTIAL]
 	set BACKUP $[GM9OUT]/backup
     mkdir $[BACKUP]
-	cp -n -w G:/frndseed $[BACKUP]/LocalFriendCodeSeed_B 
-    cp -n -w G:/hwcal0 $[BACKUP]/HWCAL0.dat
-    cp -n -w G:/hwcal1 $[BACKUP]/HWCAL1.dat
-    cp -n -w G:/movable $[BACKUP]/movable.sed 
-    cp -n -w G:/secinfo $[BACKUP]/SecureInfo_A
+	cp -n -w -o -s G:/frndseed $[BACKUP]/LocalFriendCodeSeed_B 
+    cp -n -w -o -s G:/hwcal0 $[BACKUP]/HWCAL0.dat
+    cp -n -w -o -s G:/hwcal1 $[BACKUP]/HWCAL1.dat
+    cp -n -w -o -s G:/movable $[BACKUP]/movable.sed 
+    cp -n -w -o -s G:/secinfo $[BACKUP]/SecureInfo_A
     imgumount
     cp -n -w $[ESSENTIAL] $[BACKUP]/essential.exefs
 	find $[BACKUP]/LocalFriendCodeSeed_B SEED 
@@ -40,7 +41,7 @@ if chk -u $[ESSENTIAL] ""
 	find $[BACKUP]/movable.sed MOVABLE
 	find $[BACKUP]/SecureInfo_A SECINFO
 else
-	# this is if neither essential.exefs exists. note it checks in gm9/in, not gm9/out
+	# this is if neither essential.exefs exists. note it still checks gm9/in, not gm9/out
 	find 0:/gm9/in/LocalFriendCodeSeed_B SEED
 	find 0:/gm9/in/HWCAL0.dat HWCAL0
 	find 0:/gm9/in/HWCAL1.dat HWCAL1
@@ -48,18 +49,18 @@ else
 	find 0:/gm9/in/SecureInfo_A SECINFO
 end
 
-set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/out."
+set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/in."
 if chk $[ONTYPE] "N3DS"
-	find $[GM9OUT]/*_ctrtransfer_n3ds.bin NULL
+	find $[GM9IN]/*_ctrtransfer_n3ds.bin NULL
 else
-	find $[GM9OUT]/*_ctrtransfer_o3ds.bin NULL
+	find $[GM9IN]/*_ctrtransfer_o3ds.bin NULL
 end
 
 set ERRORMSG "No CTRTransfer file was selected."
 if chk $[ONTYPE] "N3DS"
-    filesel "Select the CTRTransfer file to use." $[GM9OUT]/*_ctrtransfer_n3ds.bin IMAGE
+    filesel "Select the CTRTransfer file to use." $[GM9IN]/*_ctrtransfer_n3ds.bin IMAGE
 else
-    filesel "Select the CTRTransfer file to use." $[GM9OUT]/*_ctrtransfer_o3ds.bin IMAGE
+    filesel "Select the CTRTransfer file to use." $[GM9IN]/*_ctrtransfer_o3ds.bin IMAGE
 end
 
 set ERRORMSG "The selected CTRNAND image is corrupted.\n \nPower off the console and obtain\na new copy of your CTRTransfer file."
