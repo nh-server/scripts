@@ -363,10 +363,10 @@ end
 # if the recovery flag exists, then they've already tried this. if any part of it failed before, it'll fail again now - no point in redoing it
 if find 9:/RECOVERYFLAG NULL
     if chk $[MOVABLEVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: movable.sed remains invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: movable.sed is still invalid after a recovery attempt."
     end
     if chk $[LFCSVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: LFCS remains invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: LFCS is still invalid after a recovery attempt."
     end
     if chk $[SECVALID] "0"
         set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: SecureInfo is still invalid after a recovery attempt."
@@ -704,7 +704,7 @@ if isdir "0:/Nintendo 3DS"
         if isdir "0:/Nintendo 3DS/$[SYSID0]"
             set SD_LOG "$[SD_LOG]Warning: Nintendo 3DS folder has valid data, but the data is inaccessible.\n"
         else
-            set SD_LOG "$[SD_LOG]Information: Nintendo 3DS folder exists    , but has no data.\n"
+            set SD_LOG "$[SD_LOG]Information: Nintendo 3DS folder exists, but has no data.\n"
         end
     end
     if not find 0:/boot.3dsx NULL
