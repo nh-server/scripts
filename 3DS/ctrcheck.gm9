@@ -658,7 +658,6 @@ end
 
 @SD_Files
 set PREVIEW_MODE "ctrcheck v$[VERSION]\nCurrently processing: SD. Progress:\n \nSD Structure: ~~~"
-end
 # this script doesn't NEED an SD to run, necessarily, but you'd have to copy it to your NAND on purpose
 if not isdir 0:
     set SD_LOG "$[SD_LOG]Bruh Moment: No SD card is inserted. You went out of your way to find this, didn't you?\n"
