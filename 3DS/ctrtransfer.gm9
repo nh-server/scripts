@@ -1,9 +1,9 @@
 # ctrtransfer script for 3ds.hacks.guide
 # script made by doge.2, with contributions from StarlitSkies
-# last modified: 2024-09-30
+# last modified: 2024-10-16
 # most stuff taken from manual ctrtransfer script and megascript, credits go to them :p
 set GM9IN "0:/gm9/in"
-set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/out."
+set ERRORMSG "No valid CTRTransfer files found in 0:/gm9/in."
 if chk $[ONTYPE] "N3DS"
 	find $[GM9IN]/*_ctrtransfer_n3ds.bin NULL
 else
