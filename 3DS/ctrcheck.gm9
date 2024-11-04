@@ -381,7 +381,7 @@ if find 9:/RECOVERYFLAG NULL
 end
 set PREVIEW_MODE "ctrcheck v$[VERSION]\nCurrently processing: NAND. Progress:\n \nNAND Header: DONE\nNAND Sectors: DONE\nCTRNAND: !!!\nTWLNAND: ---\nTWLP: ---\nFIRM Partitions: ---"
 set TRYRECOVERY "0"
-if find S:/essential.exefs
+if find S:/essential.exefs NULL
     if ask "Critical files in the CTRNAND are invalid,\nbut a backup was found.\nPress (A) to enter data recovery mode.\n \n(If you have already tried this recently,\nyou may safely skip this part.)"
         allow -a 1:
         set TRYRECOVERY "1"
