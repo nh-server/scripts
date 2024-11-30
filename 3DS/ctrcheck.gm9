@@ -393,7 +393,7 @@ if find S:/essential.exefs NULL
             set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and data recovery was denied."
         end
         if chk $[SECVALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecuureInfo is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and data recovery was denied."
         end
         if chk $[HWCAL0VALID] "0"
             set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and data recovery was denied."
@@ -410,7 +410,7 @@ else
         set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and essential.exefs does not exist."
     end
     if chk $[SECVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecuureInfo is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and essential.exefs does not exist."
     end
     if chk $[HWCAL0VALID] "0"
         set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and essential.exefs does not exist."
