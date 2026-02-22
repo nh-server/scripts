@@ -363,19 +363,19 @@ end
 # if the recovery flag exists, then they've already tried this. if any part of it failed before, it'll fail again now - no point in redoing it
 if find 9:/RECOVERYFLAG NULL
     if chk $[MOVABLEVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: movable.sed is still invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: movable.sed is still invalid after a recovery attempt.\n"
     end
     if chk $[LFCSVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: LFCS is still invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: LFCS is still invalid after a recovery attempt.\n"
     end
     if chk $[SECVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: SecureInfo is still invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: SecureInfo is still invalid after a recovery attempt.\n"
     end
     if chk $[HWCAL0VALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: HWCAL0 is still invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: HWCAL0 is still invalid after a recovery attempt.\n"
     end
     if chk $[HWCAL1VALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: HWCAL1 is still invalid after a recovery attempt."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Bruh Moment: HWCAL1 is still invalid after a recovery attempt.\n"
     end
     goto TWLNAND
 end
@@ -387,36 +387,36 @@ if find S:/essential.exefs NULL
         set TRYRECOVERY "1"
     else
         if chk $[MOVABLEVALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: movable.sed is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: movable.sed is invalid, and data recovery was denied.\n"
         end
         if chk $[LFCSVALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and data recovery was denied.\n"
         end
         if chk $[SECVALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and data recovery was denied.\n"
         end
         if chk $[HWCAL0VALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and data recovery was denied.\n"
         end
         if chk $[HWCAL1VALID] "0"
-            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL1 is invalid, and data recovery was denied."
+            set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL1 is invalid, and data recovery was denied.\n"
         end
     end
 else
     if chk $[MOVABLEVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: movable.sed is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: movable.sed is invalid, and essential.exefs does not exist.\n"
     end
     if chk $[LFCSVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: LFCS is invalid, and essential.exefs does not exist.\n"
     end
     if chk $[SECVALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: SecureInfo is invalid, and essential.exefs does not exist.\n"
     end
     if chk $[HWCAL0VALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL0 is invalid, and essential.exefs does not exist.\n"
     end
     if chk $[HWCAL1VALID] "0"
-        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL1 is invalid, and essential.exefs does not exist."
+        set ESSENTIALS_LOG "$[ESSENTIALS_LOG]Error: HWCAL1 is invalid, and essential.exefs does not exist.\n"
     end
 end
 
