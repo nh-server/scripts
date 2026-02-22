@@ -1,0 +1,30 @@
+name: Release 3DS scripts
+
+on:
+  push:
+    branches: [ master ]
+    paths: [ '3DS/*.gm9', '3DS/*.lua' ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: rickstaa/action-create-tag@v1
+        with:
+          tag: 3ds
+          force_push_tag: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: 3DS Scripts
+          tag_name: 3ds
+          prerelease: true
+          files: |
+            3DS/*.lua
+            3DS/*.gm9
