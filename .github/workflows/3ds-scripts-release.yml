@@ -2,7 +2,7 @@ name: Release 3DS scripts
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths: [ '3DS/*.gm9', '3DS/*.lua' ]
   workflow_dispatch:
 
