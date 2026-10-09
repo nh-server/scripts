@@ -44,10 +44,16 @@ imgmount $[CTRXFR]
 
 inject 7:/rw/sys/SecureInfo_A@100:1 1:/rw/sys/SecureInfo_C@100
 
-rm -o -s 1:/dbs/ticket.bak
-mv 1:/dbs/ticket.db 1:/ticket.bak
-rm 1:/dbs
-rm 1:/title
+if find 1:/dbs/ticket.bak NULL
+	mv -n -w 1:/dbs/ticket.bak 1:/ticket.bak
+elif find 1:/ticket.bak NULL
+	# likely interrupted before copying finished, just use the existing backup
+elif find 1:/dbs/ticket.db NULL
+	rm -o -s 1:/dbs/ticket.bak
+	mv -n -w 1:/dbs/ticket.db 1:/ticket.bak
+end
+rm -o -s 1:/dbs
+rm -o -s 1:/title
 mkdir 1:/dbs
 mkdir 1:/title
 cp -n -w 7:/dbs 1:/dbs
